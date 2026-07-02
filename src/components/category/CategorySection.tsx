@@ -18,7 +18,6 @@ export default function CategorySection({
     return (
         <View style={styles.section}>
             <Text style={styles.title}>Categories</Text>
-
             <View style={styles.form}>
                 <TextInput
                     style={styles.input}

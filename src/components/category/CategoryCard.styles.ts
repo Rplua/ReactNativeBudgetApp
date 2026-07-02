@@ -112,4 +112,29 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: "#444444",
     },
+    editForm: {
+        gap: 10,
+        padding: 12,
+        borderRadius: 14,
+        backgroundColor: "#f9fafb",
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+    },
+
+    formTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#111827",
+    },
+
+    descriptionInput: {
+        minHeight: 80,
+        textAlignVertical: "top",
+    },
+
+    formActions: {
+        flexDirection: "row",
+        gap: 8,
+        flexWrap: "wrap",
+    },
 });

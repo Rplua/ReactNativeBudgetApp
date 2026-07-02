@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type {
   MonthlyBudget,
   CategoryBudget,
@@ -20,6 +20,8 @@ export default function HomeScreen() {
 
   const [categoryInputValue, setCategoryInputValue] = useState("");
   const [categoryErrorMessage, setCategoryErrorMessage] = useState("");
+
+  let totalAmount = Number(categoryInputValue);
 
   const openBudgetForm = () => {
     setIsBudgetFormOpen(true);
@@ -111,7 +113,9 @@ export default function HomeScreen() {
       if (previousBudget === null) {
         return previousBudget;
       }
-
+      if(amount > totalAmount){
+        setBudgetErrorMessage("error")
+      }
       return {
         ...previousBudget,
         categories: previousBudget.categories.map((category) =>
@@ -126,17 +130,23 @@ export default function HomeScreen() {
     });
   };
 
-  const onDeleteCategory = (categoriesId: string) => {
+  const onDeleteCategory = (categoryId: string) => {
+
     setMonthlyBudget((previousBudget) => {
       if (previousBudget === null) {
-        return previousBudget
+        return previousBudget;
       }
+
+      const updatedCategories = previousBudget.categories.filter(
+        (category) => category.id !== categoryId
+      );
+
       return {
         ...previousBudget,
-        categories: previousBudget.categories.filter((category) => category.id != category.id)
-      }
-    })
-  }
+        categories: updatedCategories,
+      };
+    });
+  };
 
   const editCategory = (updatedCategory: CategoryBudget) => {
     setMonthlyBudget((previousBudget) => {
@@ -174,29 +184,30 @@ export default function HomeScreen() {
   };
 
   const addSubcategory = (
-  categoryId: string,
-  subcategory: SubcategoryBudget
-) => {
-  setMonthlyBudget((previousBudget) => {
-    if (previousBudget === null) {
-      return previousBudget;
-    }
+    categoryId: string,
+    subcategory: SubcategoryBudget
+  ) => {
+    setMonthlyBudget((previousBudget) => {
+      if (previousBudget === null) {
+        return previousBudget;
+      }
 
-    return {
-      ...previousBudget,
-      categories: previousBudget.categories.map((category) =>
-        category.id === categoryId
-          ? {
+      return {
+        ...previousBudget,
+        categories: previousBudget.categories.map((category) =>
+          category.id === categoryId
+            ? {
               ...category,
               subcategories: [...category.subcategories, subcategory],
             }
-          : category
-      ),
-    };
-  });
-};
+            : category
+        ),
+      };
+    });
+  };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Componente Budget */}
@@ -218,8 +229,8 @@ export default function HomeScreen() {
               categoryInputValue={categoryInputValue}
               categoryErrorMessage={categoryErrorMessage}
               onAddCategory={addCategory}
-              onAddExpenseToCategory={ addExpenseToCategory}
-              onAddSubcategory={ addSubcategory}
+              onAddExpenseToCategory={addExpenseToCategory}
+              onAddSubcategory={addSubcategory}
               onAddMoneyToCategory={addMoneyToCategory}
               onChangeCategoryInputValue={setCategoryInputValue}
               onEditCategory={editCategory}
@@ -229,6 +240,7 @@ export default function HomeScreen() {
         </View>
       </View>
     </View>
+    </ScrollView>
   );
 }
 
@@ -237,10 +249,12 @@ export default function HomeScreen() {
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f3f4f6",
   },
   content: {
-    padding: 20,
+    padding: 16,
     gap: 20,
+    paddingBottom: 40,
   },
   emptyBudgetContainer: {
     gap: 12,
