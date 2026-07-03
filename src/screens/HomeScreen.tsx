@@ -10,10 +10,35 @@ import BudgetSection from "../components/budget/BudgetSection";
 import CategorySection from "../components/category/CategorySection";
 
 
+
 export default function HomeScreen() {
-  const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(
-    null,
+
+  const createPeriodKey = (year: number, month: number) => {
+    return `${year}-${month.toString().padStart(2, "0")}`;
+  };
+  const getMonthAndYearFromPeriodKey = (periodKey: string) => {
+    const [year, month] = periodKey.split("-").map(Number);
+
+    return {
+      year,
+      month,
+    };
+  };
+  const [budgets, setBudgets] = useState<MonthlyBudget[]>([]);
+  const getCurrentPeriodKey = () => {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+
+    return createPeriodKey(year, month);
+  };
+
+  const [selectedPeriodKey, setSelectedPeriodKey] = useState(
+    () => getCurrentPeriodKey()
   );
+  const selectedBudget =
+    budgets.find((budget) => budget.periodKey === selectedPeriodKey) ?? null;
+
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false);
   const [budgetInputValue, setBudgetInputValue] = useState("");
   const [budgetErrorMessage, setBudgetErrorMessage] = useState("");
@@ -21,7 +46,6 @@ export default function HomeScreen() {
   const [categoryInputValue, setCategoryInputValue] = useState("");
   const [categoryErrorMessage, setCategoryErrorMessage] = useState("");
 
-  let totalAmount = Number(categoryInputValue);
 
   const openBudgetForm = () => {
     setIsBudgetFormOpen(true);
@@ -40,29 +64,37 @@ export default function HomeScreen() {
       setBudgetErrorMessage("The budget must be greater than 0.");
       return;
     }
-    let date = new Date();
+
+    const budgetAlreadyExists = budgets.some(
+      (budget) => budget.periodKey === selectedPeriodKey
+    );
+
+    if (budgetAlreadyExists) {
+      setBudgetErrorMessage("A budget already exists for this month.");
+      return;
+    }
+
+    const { month, year } = getMonthAndYearFromPeriodKey(selectedPeriodKey);
 
     const newBudget: MonthlyBudget = {
       id: Date.now().toString(),
       amount: parsedBudget,
       currency: "EUR",
-      month: getNumberOfMonth(date),
-      year: date.getFullYear(),
+      month,
+      year,
+      periodKey: selectedPeriodKey,
       categories: [],
     };
 
-    setMonthlyBudget(newBudget);
+    setBudgets((previousBudgets) => [...previousBudgets, newBudget]);
+
     setBudgetInputValue("");
     setBudgetErrorMessage("");
     setIsBudgetFormOpen(false);
   };
 
-  const getNumberOfMonth = (date: Date) => {
-    return date.getMonth() + 1;
-  };
-
   const addCategory = () => {
-    if (monthlyBudget === null) {
+    if (selectedBudget === null) {
       setCategoryErrorMessage("Create a monthly budget first.");
       return;
     }
@@ -74,7 +106,7 @@ export default function HomeScreen() {
       return;
     }
 
-    const categoryAlreadyExists = monthlyBudget.categories.some(
+    const categoryAlreadyExists = selectedBudget.categories.some(
       (existingCategory) =>
         existingCategory.name.toLowerCase() === categoryName.toLowerCase(),
     );
@@ -93,7 +125,7 @@ export default function HomeScreen() {
       expenses: [],
     };
 
-    setMonthlyBudget((previousBudget) => {
+    updateSelectedBudget((previousBudget) => {
       if (previousBudget === null) {
         return previousBudget;
       }
@@ -109,13 +141,11 @@ export default function HomeScreen() {
   };
 
   const addMoneyToCategory = (categoryId: string, amount: number) => {
-    setMonthlyBudget((previousBudget) => {
+    updateSelectedBudget((previousBudget) => {
       if (previousBudget === null) {
         return previousBudget;
       }
-      if(amount > totalAmount){
-        setBudgetErrorMessage("error")
-      }
+
       return {
         ...previousBudget,
         categories: previousBudget.categories.map((category) =>
@@ -132,10 +162,7 @@ export default function HomeScreen() {
 
   const onDeleteCategory = (categoryId: string) => {
 
-    setMonthlyBudget((previousBudget) => {
-      if (previousBudget === null) {
-        return previousBudget;
-      }
+    updateSelectedBudget((previousBudget) => {
 
       const updatedCategories = previousBudget.categories.filter(
         (category) => category.id !== categoryId
@@ -149,10 +176,8 @@ export default function HomeScreen() {
   };
 
   const editCategory = (updatedCategory: CategoryBudget) => {
-    setMonthlyBudget((previousBudget) => {
-      if (previousBudget === null) {
-        return previousBudget;
-      }
+    updateSelectedBudget((previousBudget) => {
+
 
       return {
         ...previousBudget,
@@ -164,10 +189,8 @@ export default function HomeScreen() {
   };
 
   const addExpenseToCategory = (categoryId: string, expense: Expense) => {
-    setMonthlyBudget((previousBudget) => {
-      if (previousBudget === null) {
-        return previousBudget;
-      }
+    updateSelectedBudget((previousBudget) => {
+
 
       return {
         ...previousBudget,
@@ -187,10 +210,8 @@ export default function HomeScreen() {
     categoryId: string,
     subcategory: SubcategoryBudget
   ) => {
-    setMonthlyBudget((previousBudget) => {
-      if (previousBudget === null) {
-        return previousBudget;
-      }
+    updateSelectedBudget((previousBudget) => {
+
 
       return {
         ...previousBudget,
@@ -206,40 +227,51 @@ export default function HomeScreen() {
     });
   };
 
+  const updateSelectedBudget = (
+    updateBudget: (budget: MonthlyBudget) => MonthlyBudget
+  ) => {
+    setBudgets((previousBudgets) =>
+      previousBudgets.map((budget) =>
+        budget.periodKey === selectedPeriodKey ? updateBudget(budget) : budget
+      )
+    );
+  };
+
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <View style={styles.content}>
-        {/* Componente Budget */}
-        <BudgetSection
-          monthlyBudget={monthlyBudget}
-          isBudgetFormOpen={isBudgetFormOpen}
-          budgetInputValue={budgetInputValue}
-          budgetErrorMessage={budgetErrorMessage}
-          onOpenBudgetForm={openBudgetForm}
-          onCloseBudgetForm={closeBudgetForm}
-          onSaveBudget={saveBudget}
-          onChangeBudgetInputValue={setBudgetInputValue}
-        ></BudgetSection>
-        <View>
-          {/* Componente Category */}
-          {monthlyBudget != null && (
-            <CategorySection
-              categories={monthlyBudget.categories}
-              categoryInputValue={categoryInputValue}
-              categoryErrorMessage={categoryErrorMessage}
-              onAddCategory={addCategory}
-              onAddExpenseToCategory={addExpenseToCategory}
-              onAddSubcategory={addSubcategory}
-              onAddMoneyToCategory={addMoneyToCategory}
-              onChangeCategoryInputValue={setCategoryInputValue}
-              onEditCategory={editCategory}
-              onDeleteCategory={onDeleteCategory}
-            ></CategorySection>
-          )}
+      <View style={styles.container}>
+        <View style={styles.content}>
+          {/* Componente Budget */}
+          <Text>Hola</Text>
+          <BudgetSection
+            monthlyBudget={selectedBudget}
+            isBudgetFormOpen={isBudgetFormOpen}
+            budgetInputValue={budgetInputValue}
+            budgetErrorMessage={budgetErrorMessage}
+            onOpenBudgetForm={openBudgetForm}
+            onCloseBudgetForm={closeBudgetForm}
+            onSaveBudget={saveBudget}
+            onChangeBudgetInputValue={setBudgetInputValue}
+          ></BudgetSection>
+          <View>
+            {/* Componente Category */}
+            {selectedBudget != null && (
+              <CategorySection
+                categories={selectedBudget.categories}
+                categoryInputValue={categoryInputValue}
+                categoryErrorMessage={categoryErrorMessage}
+                onAddCategory={addCategory}
+                onAddExpenseToCategory={addExpenseToCategory}
+                onAddSubcategory={addSubcategory}
+                onAddMoneyToCategory={addMoneyToCategory}
+                onChangeCategoryInputValue={setCategoryInputValue}
+                onEditCategory={editCategory}
+                onDeleteCategory={onDeleteCategory}
+              ></CategorySection>
+            )}
+          </View>
         </View>
       </View>
-    </View>
     </ScrollView>
   );
 }

@@ -1,9 +1,15 @@
+export interface BudgetState {
+    budgets: MonthlyBudget[];
+    selectedPeriodKey: string;
+}
+
 export interface MonthlyBudget {
     id: string;
     amount: number;
     currency: string;
     month: number;
     year: number;
+    periodKey: string;
     categories: CategoryBudget[];
 }
 
