@@ -1,3 +1,5 @@
+import type { KeyboardTypeOptions } from "react-native";
+
 export interface BudgetState {
     budgets: MonthlyBudget[];
     selectedPeriodKey: string;
@@ -116,4 +118,22 @@ export interface SubcategoryCardProps {
         categoryId: string,
         subcategory: SubcategoryBudget
     ) => void;
+}
+
+export type AppButtonVariant = "primary" | "secondary" | "danger" | "disabled";
+
+export interface AppButtonProps {
+    title: string;
+    variant?: AppButtonVariant;
+    onPress: () => void;
+}
+export type AppInputVariant = "default" | "textarea";
+
+export interface AppInputProps {
+    placeholder: string;
+    value: string;
+    variant?: AppInputVariant;
+    onChangeText: (value: string) => void;
+    keyboardType?: KeyboardTypeOptions;
+    multiline?: boolean;
 }

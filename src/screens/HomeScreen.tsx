@@ -10,6 +10,7 @@ import BudgetSection from "../components/budget/BudgetSection";
 import CategorySection from "../components/category/CategorySection";
 import { getCurrentPeriodKey, getMonthAndYearFromPeriodKey, createPeriodKey } from "../utils/period";
 import { useBudgetManager } from "../hooks/useBudgetManger"
+import ScreenContainer from "../UI/ScreenContainer";
 
 export default function HomeScreen() {
 
@@ -81,40 +82,33 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          {/* Componente Budget */}
-          <BudgetSection
-            monthlyBudget={selectedBudget}
-            isBudgetFormOpen={isBudgetFormOpen}
-            budgetInputValue={budgetInputValue}
-            budgetErrorMessage={budgetErrorMessage}
-            onOpenBudgetForm={openBudgetForm}
-            onCloseBudgetForm={closeBudgetForm}
-            onSaveBudget={saveBudget}
-            onChangeBudgetInputValue={setBudgetInputValue}
-          ></BudgetSection>
-          <View>
-            {/* Componente Category */}
-            {selectedBudget != null && (
-              <CategorySection
-                categories={selectedBudget.categories}
-                categoryInputValue={categoryInputValue}
-                categoryErrorMessage={categoryErrorMessage}
-                onAddCategory={addCategory}
-                onAddExpenseToCategory={addExpenseToCategoryInSelectedBudget}
-                onAddSubcategory={addSubcategoryToSelectedBudget}
-                onAddMoneyToCategory={addMoneyToCategoryInSelectedBudget}
-                onChangeCategoryInputValue={setCategoryInputValue}
-                onEditCategory={editCategoryInSelectedBudget}
-                onDeleteCategory={deleteCategoryFromSelectedBudget}
-              />
-            )}
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+    <ScreenContainer>
+      <BudgetSection
+        monthlyBudget={selectedBudget}
+        isBudgetFormOpen={isBudgetFormOpen}
+        budgetInputValue={budgetInputValue}
+        budgetErrorMessage={budgetErrorMessage}
+        onOpenBudgetForm={openBudgetForm}
+        onCloseBudgetForm={closeBudgetForm}
+        onSaveBudget={saveBudget}
+        onChangeBudgetInputValue={setBudgetInputValue}
+      />
+
+      {selectedBudget !== null && (
+        <CategorySection
+          categories={selectedBudget.categories}
+          categoryInputValue={categoryInputValue}
+          categoryErrorMessage={categoryErrorMessage}
+          onAddCategory={addCategory}
+          onAddExpenseToCategory={addExpenseToCategoryInSelectedBudget}
+          onAddSubcategory={addSubcategoryToSelectedBudget}
+          onAddMoneyToCategory={addMoneyToCategoryInSelectedBudget}
+          onChangeCategoryInputValue={setCategoryInputValue}
+          onEditCategory={editCategoryInSelectedBudget}
+          onDeleteCategory={deleteCategoryFromSelectedBudget}
+        />
+      )}
+    </ScreenContainer>
   );
 }
 

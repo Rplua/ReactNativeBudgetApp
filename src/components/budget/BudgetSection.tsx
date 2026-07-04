@@ -1,6 +1,9 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { BudgetSectionProps } from "../../types";
+import { Text, View } from "react-native";
+import type { BudgetSectionProps } from "../../types";
 import { styles } from "./BudgetSection.styles";
+import AppButton from "../../UI/AppButton";
+import AppInput from "../../UI/AppInput";
+import AppCard from "../../UI/AppCard";
 
 export default function BudgetSection({
   monthlyBudget,
@@ -13,49 +16,47 @@ export default function BudgetSection({
   onChangeBudgetInputValue,
 }: BudgetSectionProps) {
   return (
-    <View>
+    <View style={styles.section}>
       {monthlyBudget === null && (
-        <View style={styles.emptyBudgetContainer}>
+        <AppCard>
           <Text style={styles.emptyBudgetText}>
             Add your monthly budget for your games or other funny stuff
           </Text>
 
-          <Pressable style={styles.primaryButton} onPress={onOpenBudgetForm}>
-            <Text style={styles.primaryButtonText}>Add Budget</Text>
-          </Pressable>
-        </View>
+          <AppButton title="Add Budget" onPress={onOpenBudgetForm} />
+        </AppCard>
       )}
 
       {monthlyBudget !== null && (
-        <View style={styles.budgetCard}>
+        <AppCard>
           <Text style={styles.budgetLabel}>Your monthly budget</Text>
           <Text style={styles.budgetAmount}>{monthlyBudget.amount} €</Text>
-        </View>
+        </AppCard>
       )}
 
       {isBudgetFormOpen && (
-        <View style={styles.formContainer}>
+        <AppCard>
           <Text style={styles.formTitle}>Add your monthly budget</Text>
 
-          <TextInput
-            style={styles.input}
+          <AppInput
             value={budgetInputValue}
             onChangeText={onChangeBudgetInputValue}
             placeholder="Enter a number bigger than 0"
+            keyboardType="numeric"
           />
 
           {budgetErrorMessage !== "" && (
             <Text style={styles.errorText}>{budgetErrorMessage}</Text>
           )}
 
-          <Pressable style={styles.primaryButton} onPress={onSaveBudget}>
-            <Text style={styles.primaryButtonText}>Save Budget</Text>
-          </Pressable>
+          <AppButton title="Save Budget" onPress={onSaveBudget} />
 
-          <Pressable style={styles.secondaryButton} onPress={onCloseBudgetForm}>
-            <Text style={styles.secondaryButtonText}>Cancel</Text>
-          </Pressable>
-        </View>
+          <AppButton
+            title="Cancel"
+            variant="secondary"
+            onPress={onCloseBudgetForm}
+          />
+        </AppCard>
       )}
     </View>
   );
