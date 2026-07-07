@@ -1,8 +1,11 @@
-import type { CategorySectionProps } from "../../types";
-import { Pressable, Text, TextInput, View } from "react-native";
+import type { CategoryBudget, CategorySectionProps, SortOption } from "../../types";
+import { Pressable, Text, TextInput, View, } from "react-native";
+import { useState } from "react";
 import { styles } from "./CategorySection.styles";
 import CategoryList from "./CategoryList";
-
+import AppInput from "../../UI/AppInput";
+import AppButton from "../../UI/AppButton";
+import CategoryFilterBar from "../../UI/CategoryFIlterBar";
 export default function CategorySection({
     categories,
     categoryInputValue,
@@ -15,12 +18,51 @@ export default function CategorySection({
     onAddSubcategory,
     onEditCategory,
 }: CategorySectionProps) {
+
+    const [searchText, setSearchText] = useState("");
+    const [sortOption, setSortOption] = useState<SortOption>("newest");
+
+    const getFilteredAndSortedCategories = () => {
+        const normalizedSearchText = searchText.trim().toLowerCase();
+
+        const filteredCategories = categories.filter((category) =>
+            category.name.toLowerCase().includes(normalizedSearchText)
+        );
+
+        const sortedCategories = [...filteredCategories].sort((a, b) => {
+            if (sortOption === "name-asc") {
+                return a.name.localeCompare(b.name);
+            }
+
+            if (sortOption === "name-desc") {
+                return b.name.localeCompare(a.name);
+            }
+
+            if (sortOption === "amount-asc") {
+                return a.allocatedAmount - b.allocatedAmount;
+            }
+
+            if (sortOption === "amount-desc") {
+                return b.allocatedAmount - a.allocatedAmount;
+            }
+
+            if (sortOption === "newest") {
+                return Number(b.id) - Number(a.id);
+            }
+
+            return 0;
+        });
+
+        return sortedCategories;
+    };
+
+    const filteredAndSortedCategories = getFilteredAndSortedCategories();
+
     return (
         <View style={styles.section}>
             <Text style={styles.title}>Categories</Text>
             <View style={styles.form}>
-                <TextInput
-                    style={styles.input}
+                <AppInput
                     placeholder="Add your category"
                     value={categoryInputValue}
                     onChangeText={onChangeCategoryInputValue}
@@ -34,10 +76,15 @@ export default function CategorySection({
                     <Text style={styles.errorText}>{categoryErrorMessage}</Text>
                 )}
             </View>
-
-            {categories.length > 0 ? (
+            <CategoryFilterBar
+                searchText={searchText}
+                sortOption={sortOption}
+                onChangeSearchText={setSearchText}
+                onChangeSortOption={setSortOption}
+            />
+            {filteredAndSortedCategories.length > 0 ? (
                 <CategoryList
-                    categories={categories}
+                    categories={filteredAndSortedCategories}
                     onAddExpenseToCategory={onAddExpenseToCategory}
                     onAddMoneyToCategory={onAddMoneyToCategory}
                     onDeleteCategory={onDeleteCategory}

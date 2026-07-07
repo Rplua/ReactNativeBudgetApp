@@ -75,6 +75,7 @@ export function useBudgetManager() {
             description: null,
             subcategories: [],
             expenses: [],
+            createdAt: new Date().toISOString(),
         };
 
         updateSelectedBudget((previousBudget) => {

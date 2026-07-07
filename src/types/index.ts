@@ -1,5 +1,18 @@
 import type { KeyboardTypeOptions } from "react-native";
 
+export type SortOption =
+    | "newest"
+    | "name-asc"
+    | "name-desc"
+    | "amount-asc"
+    | "amount-desc";
+
+export interface CategoryFilterBarProps {
+    searchText: string;
+    sortOption: SortOption;
+    onChangeSearchText: (value: string) => void;
+    onChangeSortOption: (option: SortOption) => void;
+}
 export interface BudgetState {
     budgets: MonthlyBudget[];
     selectedPeriodKey: string;
@@ -22,6 +35,7 @@ export interface CategoryBudget {
     allocatedAmount: number;
     subcategories: SubcategoryBudget[];
     expenses: Expense[];
+    createdAt: string
 }
 
 export interface SubcategoryBudget {

@@ -17,7 +17,7 @@ export default function BudgetSection({
 }: BudgetSectionProps) {
   return (
     <View style={styles.section}>
-      {monthlyBudget === null && (
+      {monthlyBudget === null && isBudgetFormOpen == false && (
         <AppCard>
           <Text style={styles.emptyBudgetText}>
             Add your monthly budget for your games or other funny stuff
