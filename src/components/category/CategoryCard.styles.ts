@@ -137,4 +137,10 @@ export const styles = StyleSheet.create({
         gap: 8,
         flexWrap: "wrap",
     },
+
+    amountLabel: {
+        fontSize: 12,
+        color: "#6b7280",
+        textAlign: "right",
+    },
 });

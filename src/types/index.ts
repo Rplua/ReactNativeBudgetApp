@@ -151,3 +151,8 @@ export interface AppInputProps {
     keyboardType?: KeyboardTypeOptions;
     multiline?: boolean;
 }
+
+export interface AddMoneyFormProps {
+  onSave: (amount: number) => void;
+  onCancel: () => void;
+}

@@ -1,7 +1,12 @@
+// src/components/category/CategoryCard.tsx
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { View, Text } from "react-native";
 import type { CategoryCardProps, Expense } from "../../types";
 import { styles } from "./CategoryCard.styles";
+import AppButton from "../../UI/AppButton";
+import AppInput from "../../UI/AppInput";
+import AppCard from "../../UI/AppCard";
+import AddMoneyForm from '../category/forms/AddMoneyForm'
 
 export default function CategoryCard({
     category,
@@ -10,16 +15,9 @@ export default function CategoryCard({
     onEditCategory,
     onAddExpenseToCategory,
 }: CategoryCardProps) {
-    // -----------------------------
-    // Add Money state
-    // -----------------------------
-    const [isAddMoneyFormOpen, setIsAddMoneyFormOpen] = useState(false);
-    const [moneyInputValue, setMoneyInputValue] = useState("");
-    const [moneyErrorMessage, setMoneyErrorMessage] = useState("");
 
-    // -----------------------------
-    // Edit Category state
-    // -----------------------------
+    const [isAddMoneyFormOpen, setIsAddMoneyFormOpen] = useState(false);
+
     const [isEditFormOpen, setIsEditFormOpen] = useState(false);
     const [editNameInputValue, setEditNameInputValue] = useState(category.name);
     const [editAmountInputValue, setEditAmountInputValue] = useState(
@@ -30,9 +28,6 @@ export default function CategoryCard({
     );
     const [editErrorMessage, setEditErrorMessage] = useState("");
 
-    // -----------------------------
-    // Add Expense state
-    // -----------------------------
     const [isAddExpenseFormOpen, setIsAddExpenseFormOpen] = useState(false);
     const [expenseNameInputValue, setExpenseNameInputValue] = useState("");
     const [expenseAmountInputValue, setExpenseAmountInputValue] = useState("");
@@ -58,38 +53,21 @@ export default function CategoryCard({
         0
     );
 
-    const totalSpent = directExpensesTotal + subcategoriesExpensesTotal;
-    const remainingAmount = category.allocatedAmount - totalSpent;
+    const totalExpenses = directExpensesTotal + subcategoriesExpensesTotal;
+
+    // Dinero que el usuario tiene actualmente disponible en la categoría.
+    const availableAmount = category.allocatedAmount - totalExpenses;
 
     // -----------------------------
     // Toggle forms
     // -----------------------------
     const toggleAddMoneyForm = () => {
         setIsAddMoneyFormOpen((previousValue) => !previousValue);
-        setMoneyErrorMessage("");
     };
 
     const toggleExpenseForm = () => {
         setIsAddExpenseFormOpen((previousValue) => !previousValue);
         setExpenseErrorMessage("");
-    };
-
-    // -----------------------------
-    // Save money
-    // -----------------------------
-    const handleSaveMoney = () => {
-        const parsedAmount = Number(moneyInputValue);
-
-        if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-            setMoneyErrorMessage("Value should be greater than 0.");
-            return;
-        }
-
-        onAddMoneyToCategory(category.id, parsedAmount);
-
-        setMoneyInputValue("");
-        setMoneyErrorMessage("");
-        setIsAddMoneyFormOpen(false);
     };
 
     // -----------------------------
@@ -112,7 +90,7 @@ export default function CategoryCard({
         }
 
         // 3. Validate category remaining money
-        if (parsedAmount > remainingAmount) {
+        if (parsedAmount > availableAmount) {
             setExpenseErrorMessage(
                 "You can't spend more than the remaining amount for this category."
             );
@@ -169,7 +147,7 @@ export default function CategoryCard({
     };
 
     return (
-        <View style={styles.card}>
+        <AppCard>
             {/* Category header */}
             <View style={styles.header}>
                 <View>
@@ -179,35 +157,15 @@ export default function CategoryCard({
                         <Text style={styles.description}>{category.description}</Text>
                     )}
                 </View>
-
-                <Text style={styles.amount}>{category.allocatedAmount} €</Text>
-            </View>
-
-            {/* Category summary */}
-            <View style={styles.summary}>
-                <Text style={styles.summaryText}>Spent: {totalSpent} €</Text>
-                <Text style={styles.summaryText}>Remaining: {remainingAmount} €</Text>
+                <Text style={styles.amountLabel}>Available</Text>
+                <Text style={styles.amount}>{availableAmount} €</Text>
             </View>
 
             {/* Main actions */}
             <View style={styles.actions}>
-                <Pressable style={styles.primaryButton} onPress={toggleAddMoneyForm}>
-                    <Text style={styles.primaryButtonText}>Add Money</Text>
-                </Pressable>
-
-                <Pressable
-                    style={styles.secondaryButton}
-                    onPress={() => setIsEditFormOpen(true)}
-                >
-                    <Text style={styles.secondaryButtonText}>Edit</Text>
-                </Pressable>
-
-                <Pressable
-                    style={styles.dangerButton}
-                    onPress={() => onDeleteCategory(category.id)}
-                >
-                    <Text style={styles.dangerButtonText}>Delete</Text>
-                </Pressable>
+                <AppButton title="Add Money" variant="primary" onPress={toggleAddMoneyForm} />
+                <AppButton title="Edit" variant="secondary" onPress={() => setIsEditFormOpen(true)} />
+                <AppButton title="Delete" variant="danger" onPress={() => onDeleteCategory(category.id)} />
             </View>
 
             {/* Edit category form */}
@@ -215,23 +173,20 @@ export default function CategoryCard({
                 <View style={styles.editForm}>
                     <Text style={styles.formTitle}>Edit category</Text>
 
-                    <TextInput
-                        style={styles.input}
+                    <AppInput
                         value={editNameInputValue}
                         onChangeText={setEditNameInputValue}
                         placeholder="Category name"
                     />
 
-                    <TextInput
-                        style={styles.input}
+                    <AppInput
                         value={editAmountInputValue}
                         onChangeText={setEditAmountInputValue}
                         placeholder="Allocated amount"
                         keyboardType="numeric"
                     />
 
-                    <TextInput
-                        style={[styles.input, styles.descriptionInput]}
+                    <AppInput
                         value={editDescriptionInputValue}
                         onChangeText={setEditDescriptionInputValue}
                         placeholder="Description"
@@ -243,55 +198,39 @@ export default function CategoryCard({
                     )}
 
                     <View style={styles.formActions}>
-                        <Pressable
-                            style={styles.primaryButton}
+                        <AppButton
+                            title="Save changes"
+                            variant="primary"
                             onPress={handleSaveEditCategory}
-                        >
-                            <Text style={styles.primaryButtonText}>Save changes</Text>
-                        </Pressable>
+                        />
 
-                        <Pressable
-                            style={styles.secondaryButton}
+                        <AppButton
+                            title="Cancel"
+                            variant="secondary"
                             onPress={() => setIsEditFormOpen(false)}
-                        >
-                            <Text style={styles.secondaryButtonText}>Cancel</Text>
-                        </Pressable>
+                        />
                     </View>
                 </View>
             )}
 
             {/* Add money form */}
             {isAddMoneyFormOpen && (
-                <View style={styles.form}>
-                    <Text style={styles.formTitle}>Add money</Text>
-
-                    <TextInput
-                        style={styles.input}
-                        value={moneyInputValue}
-                        onChangeText={setMoneyInputValue}
-                        placeholder="Amount greater than 0"
-                        keyboardType="numeric"
-                    />
-
-                    {moneyErrorMessage !== "" && (
-                        <Text style={styles.errorText}>{moneyErrorMessage}</Text>
-                    )}
-
-                    <Pressable style={styles.primaryButton} onPress={handleSaveMoney}>
-                        <Text style={styles.primaryButtonText}>Save</Text>
-                    </Pressable>
-                </View>
+                <AddMoneyForm
+                    onSave={(amount) => {
+                        onAddMoneyToCategory(category.id, amount);
+                        setIsAddMoneyFormOpen(false);
+                    }}
+                    onCancel={() => setIsAddMoneyFormOpen(false)}
+                />
             )}
 
             {/* Secondary actions */}
             <View style={styles.futureActions}>
-                <Pressable style={styles.secondaryButton} onPress={toggleExpenseForm}>
-                    <Text style={styles.secondaryButtonText}>Add Expense</Text>
-                </Pressable>
-
-                <Pressable style={styles.disabledButton}>
-                    <Text style={styles.disabledButtonText}>Add Subcategory</Text>
-                </Pressable>
+                <AppButton
+                    title="Add Expense"
+                    variant="secondary"
+                    onPress={toggleExpenseForm}
+                />
             </View>
 
             {/* Add expense form */}
@@ -299,15 +238,13 @@ export default function CategoryCard({
                 <View style={styles.form}>
                     <Text style={styles.formTitle}>Add expense</Text>
 
-                    <TextInput
-                        style={styles.input}
+                    <AppInput
                         value={expenseNameInputValue}
                         onChangeText={setExpenseNameInputValue}
                         placeholder="Expense name"
                     />
 
-                    <TextInput
-                        style={styles.input}
+                    <AppInput
                         value={expenseAmountInputValue}
                         onChangeText={setExpenseAmountInputValue}
                         placeholder="Amount greater than 0"
@@ -319,32 +256,20 @@ export default function CategoryCard({
                     )}
 
                     <View style={styles.formActions}>
-                        <Pressable style={styles.primaryButton} onPress={handleSaveExpense}>
-                            <Text style={styles.primaryButtonText}>Save expense</Text>
-                        </Pressable>
+                        <AppButton
+                            title="Save expense"
+                            variant="primary"
+                            onPress={handleSaveExpense}
+                        />
 
-                        <Pressable
-                            style={styles.secondaryButton}
+                        <AppButton
+                            title="Cancel"
+                            variant="secondary"
                             onPress={() => setIsAddExpenseFormOpen(false)}
-                        >
-                            <Text style={styles.secondaryButtonText}>Cancel</Text>
-                        </Pressable>
+                        />
                     </View>
                 </View>
             )}
-
-            {/* Subcategories preview */}
-            {category.subcategories.length > 0 && (
-                <View style={styles.subcategoriesContainer}>
-                    <Text style={styles.subcategoriesTitle}>Subcategories</Text>
-
-                    {category.subcategories.map((subcategory) => (
-                        <Text key={subcategory.id} style={styles.subcategoryText}>
-                            {subcategory.name} - {subcategory.allocatedAmount} €
-                        </Text>
-                    ))}
-                </View>
-            )}
-        </View>
+        </AppCard>
     );
 }
