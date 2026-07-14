@@ -1,5 +1,5 @@
 import AppCard from "../../../UI/AppCard";
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 import AppButton from '../../../UI/AppButton'
 import AppInput from '../../../UI/AppInput'
 import type { AddMoneyFormProps } from '../../../types'
@@ -24,7 +24,7 @@ export default function AddMoneyForm({ onSave, onCancel }: AddMoneyFormProps) {
     };
 
     return (
-        <AppCard>
+        <View style={styles.form}>
             <Text style={styles.formTitle}>Add money</Text>
 
             <AppInput
@@ -38,17 +38,23 @@ export default function AddMoneyForm({ onSave, onCancel }: AddMoneyFormProps) {
                 <Text style={styles.errorText}>{moneyErrorMessage}</Text>
             )}
 
-            <AppButton
-                title="Save"
-                variant="primary"
-                onPress={handleSaveMoney}
-            />
+            <View style={styles.formActions}>
+                <View style={styles.buttonWrapper}>
+                    <AppButton
+                        title="Cancel"
+                        variant="secondary"
+                        onPress={onCancel}
+                    />
+                </View>
 
-            <AppButton
-                title="Cancel"
-                variant="secondary"
-                onPress={onCancel}
-            />
-        </AppCard>
+                <View style={styles.buttonWrapper}>
+                    <AppButton
+                        title="Save"
+                        variant="primary"
+                        onPress={handleSaveMoney}
+                    />
+                </View>
+            </View>
+        </View>
     )
 }
