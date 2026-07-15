@@ -7,6 +7,7 @@ import AppButton from "../../UI/AppButton";
 import AppInput from "../../UI/AppInput";
 import AppCard from "../../UI/AppCard";
 import AddMoneyForm from '../category/forms/AddMoneyForm'
+import AddExpenseForm from "./forms/AddExpenseForm";
 
 export default function CategoryCard({
     category,
@@ -29,9 +30,6 @@ export default function CategoryCard({
     const [editErrorMessage, setEditErrorMessage] = useState("");
 
     const [isAddExpenseFormOpen, setIsAddExpenseFormOpen] = useState(false);
-    const [expenseNameInputValue, setExpenseNameInputValue] = useState("");
-    const [expenseAmountInputValue, setExpenseAmountInputValue] = useState("");
-    const [expenseErrorMessage, setExpenseErrorMessage] = useState("");
 
     // -----------------------------
     // Calculations
@@ -54,8 +52,6 @@ export default function CategoryCard({
     );
 
     const totalExpenses = directExpensesTotal + subcategoriesExpensesTotal;
-
-    // Dinero que el usuario tiene actualmente disponible en la categoría.
     const availableAmount = category.allocatedAmount - totalExpenses;
 
     // -----------------------------
@@ -67,54 +63,7 @@ export default function CategoryCard({
 
     const toggleExpenseForm = () => {
         setIsAddExpenseFormOpen((previousValue) => !previousValue);
-        setExpenseErrorMessage("");
     };
-
-    // -----------------------------
-    // Save expense
-    // -----------------------------
-    const handleSaveExpense = () => {
-        const trimmedExpenseName = expenseNameInputValue.trim();
-        const parsedAmount = Number(expenseAmountInputValue);
-
-        // 1. Validate expense name
-        if (trimmedExpenseName === "") {
-            setExpenseErrorMessage("Expense name can't be empty.");
-            return;
-        }
-
-        // 2. Validate amount
-        if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
-            setExpenseErrorMessage("Value should be greater than 0.");
-            return;
-        }
-
-        // 3. Validate category remaining money
-        if (parsedAmount > availableAmount) {
-            setExpenseErrorMessage(
-                "You can't spend more than the remaining amount for this category."
-            );
-            return;
-        }
-
-        // 4. Create the expense object
-        const newExpense: Expense = {
-            id: Date.now().toString(),
-            title: trimmedExpenseName,
-            amount: parsedAmount,
-            date: new Date().toISOString(),
-        };
-
-        // 5. Send the expense to HomeScreen
-        onAddExpenseToCategory(category.id, newExpense);
-
-        // 6. Clean form
-        setExpenseNameInputValue("");
-        setExpenseAmountInputValue("");
-        setExpenseErrorMessage("");
-        setIsAddExpenseFormOpen(false);
-    };
-
     // -----------------------------
     // Save category edition
     // -----------------------------
@@ -163,9 +112,41 @@ export default function CategoryCard({
 
             {/* Main actions */}
             <View style={styles.actions}>
-                <AppButton title="Add Money" variant="primary" onPress={toggleAddMoneyForm} />
-                <AppButton title="Edit" variant="secondary" onPress={() => setIsEditFormOpen(true)} />
-                <AppButton title="Delete" variant="danger" onPress={() => onDeleteCategory(category.id)} />
+                <View style={styles.actionButton}>
+                    <AppButton
+                        title="Money"
+                        size="small"
+                        variant="primary"
+                        onPress={toggleAddMoneyForm}
+                    />
+                </View>
+
+                <View style={styles.actionButton}>
+                    <AppButton
+                        title="Expense"
+                        size="small"
+                        variant="secondary"
+                        onPress={toggleExpenseForm}
+                    />
+                </View>
+
+                <View style={styles.actionButton}>
+                    <AppButton
+                        title="Edit"
+                        size="small"
+                        variant="secondary"
+                        onPress={() => setIsEditFormOpen(true)}
+                    />
+                </View>
+
+                <View style={styles.actionButton}>
+                    <AppButton
+                        title="Delete"
+                        size="small"
+                        variant="danger"
+                        onPress={() => onDeleteCategory(category.id)}
+                    />
+                </View>
             </View>
 
             {/* Edit category form */}
@@ -223,52 +204,16 @@ export default function CategoryCard({
                     onCancel={() => setIsAddMoneyFormOpen(false)}
                 />
             )}
-
-            {/* Secondary actions */}
-            <View style={styles.futureActions}>
-                <AppButton
-                    title="Add Expense"
-                    variant="secondary"
-                    onPress={toggleExpenseForm}
-                />
-            </View>
-
             {/* Add expense form */}
             {isAddExpenseFormOpen && (
-                <View style={styles.form}>
-                    <Text style={styles.formTitle}>Add expense</Text>
+                <AddExpenseForm availableAmount={availableAmount}
+                    onAdd={(expense) => {
+                        onAddExpenseToCategory(category.id, expense);
+                        setIsAddExpenseFormOpen(false);
+                    }}
+                    onCancel={() => setIsAddExpenseFormOpen(false)}
+                />
 
-                    <AppInput
-                        value={expenseNameInputValue}
-                        onChangeText={setExpenseNameInputValue}
-                        placeholder="Expense name"
-                    />
-
-                    <AppInput
-                        value={expenseAmountInputValue}
-                        onChangeText={setExpenseAmountInputValue}
-                        placeholder="Amount greater than 0"
-                        keyboardType="numeric"
-                    />
-
-                    {expenseErrorMessage !== "" && (
-                        <Text style={styles.errorText}>{expenseErrorMessage}</Text>
-                    )}
-
-                    <View style={styles.formActions}>
-                        <AppButton
-                            title="Save expense"
-                            variant="primary"
-                            onPress={handleSaveExpense}
-                        />
-
-                        <AppButton
-                            title="Cancel"
-                            variant="secondary"
-                            onPress={() => setIsAddExpenseFormOpen(false)}
-                        />
-                    </View>
-                </View>
             )}
         </AppCard>
     );

@@ -34,8 +34,8 @@ export const styles = StyleSheet.create({
     },
     actions: {
         flexDirection: "row",
-        gap: 8,
-        flexWrap: "wrap",
+        alignItems: "center",
+        gap: 6,
     },
     futureActions: {
         flexDirection: "row",
@@ -142,5 +142,11 @@ export const styles = StyleSheet.create({
         fontSize: 12,
         color: "#6b7280",
         textAlign: "right",
+    },
+
+
+
+    actionButton: {
+        flex: 1,
     },
 });

@@ -40,4 +40,13 @@ export const styles = StyleSheet.create({
     disabledText: {
         color: "#9ca3af",
     },
+    smallButton: {
+        paddingVertical: 9,
+        paddingHorizontal: 8,
+        borderRadius: 10,
+    },
+
+    smallButtonText: {
+        fontSize: 13,
+    },
 });

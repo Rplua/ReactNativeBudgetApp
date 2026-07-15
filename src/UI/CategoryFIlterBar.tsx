@@ -20,30 +20,35 @@ export default function CategoryFilterBar({
             <View style={styles.sortButtons}>
                 <AppButton
                     title="Newest"
+                    size="small"
                     variant={sortOption === "newest" ? "primary" : "secondary"}
                     onPress={() => onChangeSortOption("newest")}
                 />
 
                 <AppButton
                     title="A-Z"
+                    size="small"
                     variant={sortOption === "name-asc" ? "primary" : "secondary"}
                     onPress={() => onChangeSortOption("name-asc")}
                 />
 
                 <AppButton
                     title="Z-A"
+                    size="small"
                     variant={sortOption === "name-desc" ? "primary" : "secondary"}
                     onPress={() => onChangeSortOption("name-desc")}
                 />
 
                 <AppButton
                     title="Amount ↑"
+                    size="small"
                     variant={sortOption === "amount-asc" ? "primary" : "secondary"}
                     onPress={() => onChangeSortOption("amount-asc")}
                 />
 
                 <AppButton
                     title="Amount ↓"
+                    size="small"
                     variant={sortOption === "amount-desc" ? "primary" : "secondary"}
                     onPress={() => onChangeSortOption("amount-desc")}
                 />

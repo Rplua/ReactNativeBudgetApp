@@ -135,11 +135,12 @@ export interface SubcategoryCardProps {
 }
 
 export type AppButtonVariant = "primary" | "secondary" | "danger" | "disabled";
-
+export type AppButtonSize = "default" | "small";
 export interface AppButtonProps {
     title: string;
     variant?: AppButtonVariant;
     onPress: () => void;
+    size?:  AppButtonSize;
 }
 export type AppInputVariant = "default" | "textarea";
 
@@ -153,6 +154,12 @@ export interface AppInputProps {
 }
 
 export interface AddMoneyFormProps {
-  onSave: (amount: number) => void;
-  onCancel: () => void;
+    onSave: (amount: number) => void;
+    onCancel: () => void;
+}
+
+export interface AddExpenseFormProps {
+    onAdd: (expense: Expense) => void;
+    onCancel:()=>void;
+    availableAmount: number;
 }
